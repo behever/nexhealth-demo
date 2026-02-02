@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Patient Billing Dashboard</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+      background: #f5f7fa;
+      color: #333;
+      line-height: 1.5;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
+    header {
+      background: linear-gradient(135deg, #2563eb, #1d4ed8);
+      color: white;
+      padding: 20px;
+      margin-bottom: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    
+    header h1 {
+      font-size: 24px;
+      font-weight: 600;
+    }
+    
+    header p {
+      opacity: 0.9;
+      font-size: 14px;
+      margin-top: 4px;
+    }
+    
+    .search-bar {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    
+    .search-bar input {
+      flex: 1;
+      padding: 12px 16px;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    
+    .search-bar input:focus {
+      border-color: #2563eb;
+    }
+    
+    .search-bar button {
+      padding: 12px 24px;
+      background: #2563eb;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      transition: background 0.2s;
+    }
+    
+    .search-bar button:hover {
+      background: #1d4ed8;
+    }
+    
+    .card {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      overflow: hidden;
+    }
+    
+    .card-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid #e2e8f0;
+      font-weight: 600;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .back-btn {
+      padding: 8px 16px;
+      background: #f1f5f9;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 13px;
+      color: #64748b;
+      transition: background 0.2s;
+    }
+    
+    .back-btn:hover {
+      background: #e2e8f0;
+    }
+    
+    /* Patient List */
+    .patient-list {
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .patient-row {
+      display: grid;
+      grid-template-columns: 1fr 150px 120px 100px;
+      padding: 16px 20px;
+      border-bottom: 1px solid #f1f5f9;
+      cursor: pointer;
+      transition: background 0.2s;
+      align-items: center;
+    }
+    
+    .patient-row:hover {
+      background: #f8fafc;
+    }
+    
+    .patient-row:last-child {
+      border-bottom: none;
+    }
+    
+    .patient-name {
+      font-weight: 500;
+    }
+    
+    .patient-email {
+      color: #64748b;
+      font-size: 13px;
+    }
+    
+    .patient-phone {
+      color: #64748b;
+      font-size: 14px;
+    }
+    
+    .patient-balance {
+      font-weight: 600;
+      text-align: right;
+    }
+    
+    .patient-balance.has-balance {
+      color: #dc2626;
+    }
+    
+    .patient-balance.zero {
+      color: #16a34a;
+    }
+    
+    .view-btn {
+      padding: 6px 12px;
+      background: #eff6ff;
+      color: #2563eb;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 500;
+      transition: background 0.2s;
+    }
+    
+    .view-btn:hover {
+      background: #dbeafe;
+    }
+    
+    /* Patient Detail */
+    .patient-detail {
+      display: none;
+    }
+    
+    .patient-detail.active {
+      display: block;
+    }
+    
+    .detail-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      padding: 20px;
+      background: #f8fafc;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    
+    .detail-name {
+      font-size: 24px;
+      font-weight: 600;
+    }
+    
+    .detail-info {
+      color: #64748b;
+      font-size: 14px;
+      margin-top: 4px;
+    }
+    
+    .detail-balance {
+      text-align: right;
+    }
+    
+    .detail-balance-label {
+      font-size: 13px;
+      color: #64748b;
+    }
+    
+    .detail-balance-amount {
+      font-size: 32px;
+      font-weight: 700;
+    }
+    
+    .detail-balance-amount.has-balance {
+      color: #dc2626;
+    }
+    
+    .detail-balance-amount.zero {
+      color: #16a34a;
+    }
+    
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      padding: 20px;
+      background: white;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    
+    .stat-box {
+      text-align: center;
+      padding: 16px;
+      background: #f8fafc;
+      border-radius: 8px;
+    }
+    
+    .stat-value {
+      font-size: 28px;
+      font-weight: 700;
+      color: #1e40af;
+    }
+    
+    .stat-label {
+      font-size: 13px;
+      color: #64748b;
+      margin-top: 4px;
+    }
+    
+    .section {
+      padding: 20px;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    
+    .section:last-child {
+      border-bottom: none;
+    }
+    
+    .section-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .section-title .icon {
+      font-size: 18px;
+    }
+    
+    .procedures-table, .transactions-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    
+    .procedures-table th, .transactions-table th {
+      text-align: left;
+      padding: 10px 12px;
+      background: #f8fafc;
+      font-size: 12px;
+      font-weight: 600;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .procedures-table td, .transactions-table td {
+      padding: 12px;
+      border-bottom: 1px solid #f1f5f9;
+      font-size: 14px;
+    }
+    
+    .procedures-table tr:last-child td,
+    .transactions-table tr:last-child td {
+      border-bottom: none;
+    }
+    
+    .status-badge {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+    
+    .status-completed {
+      background: #dcfce7;
+      color: #16a34a;
+    }
+    
+    .status-pending {
+      background: #fef3c7;
+      color: #d97706;
+    }
+    
+    .amount {
+      font-weight: 600;
+      font-family: 'SF Mono', Monaco, monospace;
+    }
+    
+    .amount.positive {
+      color: #16a34a;
+    }
+    
+    .amount.negative {
+      color: #dc2626;
+    }
+    
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: #94a3b8;
+    }
+    
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: #64748b;
+    }
+    
+    .pagination {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      padding: 16px;
+      border-top: 1px solid #e2e8f0;
+    }
+    
+    .pagination button {
+      padding: 8px 16px;
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: all 0.2s;
+    }
+    
+    .pagination button:hover:not(:disabled) {
+      background: #f8fafc;
+      border-color: #cbd5e1;
+    }
+    
+    .pagination button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    
+    .totals-row {
+      background: #f8fafc;
+      font-weight: 600;
+    }
+    
+    @media (max-width: 768px) {
+      .patient-row {
+        grid-template-columns: 1fr 100px;
+      }
+      
+      .patient-phone, .view-btn {
+        display: none;
+      }
+      
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>💰 Patient Billing Dashboard</h1>
+      <p>NexHealth API Demo - Gentle Family Dentistry</p>
+    </header>
+    
+    <!-- Patient List View -->
+    <div id="patient-list-view">
+      <div class="search-bar">
+        <input type="text" id="search-input" placeholder="Search patients by name...">
+        <button onclick="searchPatients()">Search</button>
+      </div>
+      
+      <div class="card">
+        <div class="card-header">
+          <span>Patients</span>
+          <span id="patient-count"></span>
+        </div>
+        <div id="patient-list" class="patient-list">
+          <div class="loading">Loading patients...</div>
+        </div>
+        <div class="pagination">
+          <button id="prev-btn" onclick="prevPage()" disabled>← Previous</button>
+          <button id="next-btn" onclick="nextPage()">Next →</button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Patient Detail View -->
+    <div id="patient-detail-view" class="patient-detail">
+      <div class="card">
+        <div class="card-header">
+          <span>Patient Details</span>
+          <button class="back-btn" onclick="showPatientList()">← Back to List</button>
+        </div>
+        <div id="patient-detail-content">
+          <div class="loading">Loading patient details...</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    let currentPage = 1;
+    const perPage = 15;
+    let totalPatients = 0;
+    
+    // Load patients on page load
+    document.addEventListener('DOMContentLoaded', () => {
+      loadPatients();
+      
+      // Search on Enter
+      document.getElementById('search-input').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') searchPatients();
+      });
+    });
+    
+    async function loadPatients(search = '') {
+      const listEl = document.getElementById('patient-list');
+      listEl.innerHTML = '<div class="loading">Loading patients...</div>';
+      
+      try {
+        let url = `/api/patients?page=${currentPage}&per_page=${perPage}`;
+        if (search) url += `&search=${encodeURIComponent(search)}`;
+        
+        const res = await fetch(url);
+        const data = await res.json();
+        
+        const patients = data.data?.patients || [];
+        totalPatients = data.count || patients.length;
+        
+        document.getElementById('patient-count').textContent = `${totalPatients} total`;
+        
+        if (patients.length === 0) {
+          listEl.innerHTML = '<div class="empty-state">No patients found</div>';
+          return;
+        }
+        
+        listEl.innerHTML = patients.map(p => `
+          <div class="patient-row" onclick="showPatientDetail(${p.id})">
+            <div>
+              <div class="patient-name">${p.first_name} ${p.last_name}</div>
+              <div class="patient-email">${p.email || 'No email'}</div>
+            </div>
+            <div class="patient-phone">${formatPhone(p.bio?.phone_number)}</div>
+            <div class="patient-balance ${getBalanceClass(p.balance?.amount)}">
+              ${formatMoney(p.balance?.amount || 0)}
+            </div>
+            <button class="view-btn">View Details</button>
+          </div>
+        `).join('');
+        
+        // Update pagination
+        document.getElementById('prev-btn').disabled = currentPage <= 1;
+        document.getElementById('next-btn').disabled = currentPage * perPage >= totalPatients;
+        
+      } catch (err) {
+        listEl.innerHTML = `<div class="empty-state">Error loading patients: ${err.message}</div>`;
+      }
+    }
+    
+    function searchPatients() {
+      currentPage = 1;
+      const search = document.getElementById('search-input').value;
+      loadPatients(search);
+    }
+    
+    function prevPage() {
+      if (currentPage > 1) {
+        currentPage--;
+        loadPatients(document.getElementById('search-input').value);
+      }
+    }
+    
+    function nextPage() {
+      if (currentPage * perPage < totalPatients) {
+        currentPage++;
+        loadPatients(document.getElementById('search-input').value);
+      }
+    }
+    
+    async function showPatientDetail(patientId) {
+      document.getElementById('patient-list-view').style.display = 'none';
+      document.getElementById('patient-detail-view').classList.add('active');
+      
+      const contentEl = document.getElementById('patient-detail-content');
+      contentEl.innerHTML = '<div class="loading">Loading patient details...</div>';
+      
+      try {
+        const res = await fetch(`/api/patients/${patientId}`);
+        const data = await res.json();
+        
+        const p = data.patient;
+        const procedures = data.procedures || [];
+        const charges = data.charges || [];
+        const payments = data.payments || [];
+        
+        // Calculate totals
+        const totalProcedureFees = procedures.reduce((sum, proc) => 
+          sum + parseFloat(proc.fee?.amount || 0), 0);
+        const totalCharges = charges.reduce((sum, c) => sum + (c.amount || 0), 0) / 100;
+        const totalPayments = payments.reduce((sum, p) => sum + (p.amount || 0), 0) / 100;
+        const balance = parseFloat(p.balance?.amount || 0);
+        
+        contentEl.innerHTML = `
+          <div class="detail-header">
+            <div>
+              <div class="detail-name">${p.first_name} ${p.last_name}</div>
+              <div class="detail-info">
+                ${p.email || 'No email'} • ${formatPhone(p.bio?.phone_number)} • DOB: ${p.bio?.date_of_birth || 'N/A'}
+              </div>
+            </div>
+            <div class="detail-balance">
+              <div class="detail-balance-label">Account Balance</div>
+              <div class="detail-balance-amount ${getBalanceClass(balance)}">
+                ${formatMoney(balance)}
+              </div>
+            </div>
+          </div>
+          
+          <div class="stats-grid">
+            <div class="stat-box">
+              <div class="stat-value">${procedures.length}</div>
+              <div class="stat-label">Procedures</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-value">${formatMoney(totalProcedureFees)}</div>
+              <div class="stat-label">Total Fees</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-value">${formatMoney(totalPayments)}</div>
+              <div class="stat-label">Total Payments</div>
+            </div>
+          </div>
+          
+          <div class="section">
+            <div class="section-title">
+              <span class="icon">🦷</span> Procedures
+            </div>
+            ${procedures.length > 0 ? `
+              <table class="procedures-table">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Code</th>
+                    <th>Procedure</th>
+                    <th>Status</th>
+                    <th style="text-align: right">Fee</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${procedures.map(proc => `
+                    <tr>
+                      <td>${proc.start_date || 'N/A'}</td>
+                      <td><code>${proc.code || '-'}</code></td>
+                      <td>${proc.name || 'Procedure'}</td>
+                      <td><span class="status-badge status-${proc.status || 'pending'}">${proc.status || 'Pending'}</span></td>
+                      <td style="text-align: right" class="amount">${formatMoney(proc.fee?.amount || 0)}</td>
+                    </tr>
+                  `).join('')}
+                  <tr class="totals-row">
+                    <td colspan="4" style="text-align: right">Total Procedure Fees:</td>
+                    <td style="text-align: right" class="amount">${formatMoney(totalProcedureFees)}</td>
+                  </tr>
+                </tbody>
+              </table>
+            ` : '<div class="empty-state">No procedures found</div>'}
+          </div>
+          
+          <div class="section">
+            <div class="section-title">
+              <span class="icon">💳</span> Charges
+            </div>
+            ${charges.length > 0 ? `
+              <table class="transactions-table">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Description</th>
+                    <th style="text-align: right">Amount</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${charges.map(c => `
+                    <tr>
+                      <td>${c.date || c.created_at || 'N/A'}</td>
+                      <td>${c.description || 'Charge'}</td>
+                      <td style="text-align: right" class="amount negative">${formatMoney((c.amount || 0) / 100)}</td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            ` : '<div class="empty-state">No charges found (charges sync from Dentrix in production)</div>'}
+          </div>
+          
+          <div class="section">
+            <div class="section-title">
+              <span class="icon">💰</span> Payments
+            </div>
+            ${payments.length > 0 ? `
+              <table class="transactions-table">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Method</th>
+                    <th style="text-align: right">Amount</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${payments.map(p => `
+                    <tr>
+                      <td>${p.date || p.created_at || 'N/A'}</td>
+                      <td>${p.payment_method || 'Payment'}</td>
+                      <td style="text-align: right" class="amount positive">${formatMoney((p.amount || 0) / 100)}</td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            ` : '<div class="empty-state">No payments found (payments sync from Dentrix in production)</div>'}
+          </div>
+        `;
+        
+      } catch (err) {
+        contentEl.innerHTML = `<div class="empty-state">Error loading patient: ${err.message}</div>`;
+      }
+    }
+    
+    function showPatientList() {
+      document.getElementById('patient-detail-view').classList.remove('active');
+      document.getElementById('patient-list-view').style.display = 'block';
+    }
+    
+    // Helpers
+    function formatMoney(amount) {
+      const num = parseFloat(amount) || 0;
+      return '$' + num.toFixed(2);
+    }
+    
+    function formatPhone(phone) {
+      if (!phone) return 'No phone';
+      const cleaned = phone.replace(/\D/g, '');
+      if (cleaned.length === 10) {
+        return `(${cleaned.slice(0,3)}) ${cleaned.slice(3,6)}-${cleaned.slice(6)}`;
+      }
+      return phone;
+    }
+    
+    function getBalanceClass(amount) {
+      const num = parseFloat(amount) || 0;
+      return num > 0 ? 'has-balance' : 'zero';
+    }
+  </script>
+</body>
+</html>
